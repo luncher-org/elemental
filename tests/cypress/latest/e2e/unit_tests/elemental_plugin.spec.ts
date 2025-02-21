@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 - 2024 SUSE LLC
+Copyright © 2022 - 2025 SUSE LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,10 +31,8 @@ filterTests(['main', 'upgrade'], () => {
 
     qase(11,
       it('Add elemental-ui repo', () => {
-        // 1 - TODO: Remove rancher 2-10 condition later
-        // 2 - UI extension upgrade cannot be tested with rancher manager 2.10 yet
-        // because we have only one version so far
-        if (!isUIVersion('stable') || isRancherManagerVersion('2.10')) {
+        // Only when we want the stable version of the UI, mainly used for the upgrade tests
+        if (!isUIVersion('stable')) {
           cypressLib.addRepository('elemental-ui', 'https://github.com/rancher/elemental-ui.git', 'git', 'gh-pages');
         }
       })
@@ -62,6 +60,12 @@ filterTests(['main', 'upgrade'], () => {
         cy.get('.plugin')
           .contains('Install')
           .click();
+        if (isRancherManagerVersion('2.8')) {
+          cy.getBySel('install-ext-modal-select-version')
+            .click();
+          cy.contains('1.3.1')
+            .click();
+        }
         cy.clickButton('Install');
         cy.contains('Installing');
         cy.contains('Extensions changed - reload required', { timeout: 40000 });
